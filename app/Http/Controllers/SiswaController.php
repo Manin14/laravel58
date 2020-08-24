@@ -30,6 +30,18 @@ class SiswaController extends Controller
     	$siswa =  new Siswa;
     	$siswa->nama = $request->nama;
     	$siswa->nim = $request->nim;
+      $siswa->tanggal = $request->tanggal;
+      $siswa->jk = $request->jk;
+      $siswa->jurusan = $request->jurusan;
+      $siswa->umur = $request->umur;
+               // check box, data nya array
+              $siswa->hobi = $request->input('hobi');
+              // rubah array ke string
+              $arraytostring = implode(',', $request->input('hobi')); 
+              // inputnya sudah jadi string
+              $siswa->hobi = $arraytostring; 
+              //dd($siswa);
+
     	$siswa->save();
         
 
@@ -46,6 +58,11 @@ class SiswaController extends Controller
 
         //ambil data dari model Siswa
         $siswas = Siswa::all();
+
+        // sortir data DESCENDING
+        $sorted = $siswas->sortByDesc('id');
+        $siswas = $sorted;
+       
         
         // tampilakn di view siswa dengan nama file index.blade.php, di compact
         return view('siswa.index',compact('siswas'));
@@ -79,9 +96,56 @@ class SiswaController extends Controller
 
        $siswa->nama = $request->nama; //nama lama akan didisi nama baru
        $siswa->nim = $request->nim; //nim  lama akan diganti nim baru
+       $siswa->tanggal = $request->tanggal; //tanggal  lama akan diganti nim baru
+       $siswa->jk = $request->jk; //jk  lama akan diganti nim baru
+       $siswa->jurusan = $request->jurusan; //jurusan  lama akan diganti nim baru
+       $siswa->umur = $request->umur; //umur  lama akan diganti nim baru
+             // check box, data nya array
+              $siswa->hobi = $request->input('hobi');
+              // rubah array ke string
+              $arraytostring = implode(',', $request->input('hobi')); 
+              // inputnya sudah jadi string
+              $siswa->hobi = $arraytostring; 
+              //dd($siswa);
+
        $siswa->update(); //lalu update
 
         // lalu redirect lagi
        return redirect('siswa')->with(['success' => 'Data Siswa  Berhasil Diupdate']);
+    }
+
+    // cari
+    public function search(Request $request){
+      $query = $request->get('cari');
+
+     //  $siswas = Siswa::where('nama', 'LIKE', '%' .$query. '%')->get();
+       $siswas = Siswa::where('nama', 'LIKE', '%' .$query. '%')
+                 ->orWhere('nim', 'LIKE', '%' .$query. '%')->get();
+
+     // dd($siswas);
+
+      return view('result', compact('siswas', 'query'));
+    }
+
+    // controller cetak semua data
+    public function print(){
+
+      $siswas = Siswa::get(); 
+
+       // sortir data DESCENDING
+        $sorted = $siswas->sortByDesc('id');
+        $siswas = $sorted;
+
+      return view('cetak-data',compact('siswas'));
+    }
+
+
+    // controller cetak perdata
+    public function perdata($id){
+
+     // $siswas = Siswa::get($id); 
+       $siswas = Siswa ::where('id', $id)->get();
+      //dd($siswas);
+      return view('cetak-perdata',compact('siswas'));
     }
 }
